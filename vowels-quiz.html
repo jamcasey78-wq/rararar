@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Vowels 21-Question Challenge</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-x: hidden; }
+        .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 100%; max-width: 600px; position: relative; z-index: 10; }
+        h2 { color: #1a73e8; text-align: center; margin-top: 0; }
+        
+        #start-screen { text-align: center; padding: 20px 0; }
+        #start-screen p { color: #5f6368; margin-bottom: 20px; font-size: 18px; }
+
+        .info-bar { display: none; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 15px; border-radius: 10px; margin-bottom: 20px; gap: 10px; position: sticky; top: 10px; z-index: 20; }
+        #display-current-name { font-weight: bold; color: #1a73e8; }
+        #timer { font-size: 22px; font-weight: bold; color: #d93025; min-width: 80px; text-align: right; }
+        
+        #quizForm { display: none; }
+        .question { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .question p { font-size: 20px; color: #3c4043; margin-bottom: 12px; line-height: 1.5; text-align: center; }
+        .question b { color: #1a73e8; font-size: 32px; display: block; margin-top: 5px; }
+        
+        .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .options label { display: block; cursor: pointer; padding: 15px 5px; border: 1px solid #dadce0; border-radius: 8px; transition: 0.3s; background: #fff; text-align: center; font-size: 18px; font-weight: bold; }
+        .options input { display: none; }
+        .options label:has(input:checked) { background-color: #e8f0fe; border-color: #1a73e8; color: #1a73e8; }
+        .options label:hover { background-color: #f8f9fa; border-color: #1a73e8; }
+        
+        input[type="text"] { padding: 12px; border: 2px solid #dadce0; border-radius: 8px; width: 80%; font-size: 16px; margin-bottom: 15px; outline: none; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: #1a73e8; }
+        
+        button { width: 100%; padding: 15px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        button:hover { background-color: #1557b0; }
+        
+        #result-screen { display: none; text-align: center; padding: 20px 0; }
+        .score-text { font-size: 54px; color: #1a73e8; margin: 10px 0; font-weight: 800; }
+        .remarks { font-size: 20px; font-weight: bold; margin-bottom: 20px; padding: 15px; border-radius: 8px; }
+        .pass { color: #1e8e3e; background: #e6f4ea; }
+        .fail { color: #d93025; background: #fce8e6; }
+
+        .leaderboard { margin-top: 30px; width: 100%; max-width: 600px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; }
+        .leaderboard h3 { text-align: center; color: #5f6368; margin-top: 0; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; }
+        .leaderboard-table th, .leaderboard-table td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .leaderboard-table th { color: #1a73e8; }
+        .top-rank { font-weight: bold; color: #f9ab00; }
+
+        .confetti-piece { position: fixed; top: -50px; font-size: 24px; z-index: 999; user-select: none; pointer-events: none; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-box">
+    <h2>🇰🇷 Vowel Phonetics Quiz</h2>
+    
+    <div id="start-screen">
+        <p>Identify the correct sound for all 21 vowels.</p>
+        <input type="text" id="studentName" placeholder="Full Name" required>
+        <button type="button" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div class="info-bar" id="info-bar">
+        <div id="display-current-name"></div>
+        <div id="timer">99999999s</div>
+    </div>
+
+    <form id="quizForm">
+        <!-- 1-21 Questions -->
+        <div class="question"><p>Select the sound for: <b>ㅏ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q1" value="c"> a</label>
+                <label><input type="radio" name="q1" value="w"> eo</label>
+                <label><input type="radio" name="q1" value="w"> o</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅓ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q2" value="w"> o</label>
+                <label><input type="radio" name="q2" value="c"> eo</label>
+                <label><input type="radio" name="q2" value="w"> u</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅗ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q3" value="c"> o</label>
+                <label><input type="radio" name="q3" value="w"> u</label>
+                <label><input type="radio" name="q3" value="w"> a</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅜ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q4" value="w"> i</label>
+                <label><input type="radio" name="q4" value="w"> e</label>
+                <label><input type="radio" name="q4" value="c"> u</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅡ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q5" value="c"> eu</label>
+                <label><input type="radio" name="q5" value="w"> i</label>
+                <label><input type="radio" name="q5" value="w"> a</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅣ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q6" value="w"> u</label>
+                <label><input type="radio" name="q6" value="c"> i</label>
+                <label><input type="radio" name="q6" value="w"> eo</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅑ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q7" value="c"> ya</label>
+                <label><input type="radio" name="q7" value="w"> yeo</label>
+                <label><input type="radio" name="q7" value="w"> yo</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅕ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q8" value="w"> ya</label>
+                <label><input type="radio" name="q8" value="c"> yeo</label>
+                <label><input type="radio" name="q8" value="w"> yu</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅛ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q9" value="c"> yo</label>
+                <label><input type="radio" name="q9" value="w"> yu</label>
+                <label><input type="radio" name="q9" value="w"> yeo</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅠ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q10" value="w"> yo</label>
+                <label><input type="radio" name="q10" value="c"> yu</label>
+                <label><input type="radio" name="q10" value="w"> ya</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅐ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q11" value="c"> ae</label>
+                <label><input type="radio" name="q11" value="w"> e</label>
+                <label><input type="radio" name="q11" value="w"> i</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅔ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q12" value="w"> ae</label>
+                <label><input type="radio" name="q12" value="c"> e</label>
+                <label><input type="radio" name="q12" value="w"> a</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅒ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q13" value="c"> yae</label>
+                <label><input type="radio" name="q13" value="w"> ye</label>
+                <label><input type="radio" name="q13" value="w"> wa</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅖ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q14" value="w"> yae</label>
+                <label><input type="radio" name="q14" value="c"> ye</label>
+                <label><input type="radio" name="q14" value="w"> wo</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅘ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q15" value="c"> wa</label>
+                <label><input type="radio" name="q15" value="w"> wo</label>
+                <label><input type="radio" name="q15" value="w"> oe</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅝ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q16" value="w"> wa</label>
+                <label><input type="radio" name="q16" value="c"> wo</label>
+                <label><input type="radio" name="q16" value="w"> wi</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅚ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q17" value="w"> wa</label>
+                <label><input type="radio" name="q17" value="c"> oe</label>
+                <label><input type="radio" name="q17" value="w"> wi</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅟ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q18" value="c"> wi</label>
+                <label><input type="radio" name="q18" value="w"> wa</label>
+                <label><input type="radio" name="q18" value="w"> wo</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅙ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q19" value="c"> wae</label>
+                <label><input type="radio" name="q19" value="w"> woe</label>
+                <label><input type="radio" name="q19" value="w"> ui</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅞ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q20" value="w"> wa</label>
+                <label><input type="radio" name="q20" value="c"> we</label>
+                <label><input type="radio" name="q20" value="w"> yae</label>
+            </div>
+        </div>
+
+        <div class="question"><p>Select the sound for: <b>ㅢ</b></p>
+            <div class="options">
+                <label><input type="radio" name="q21" value="w"> wi</label>
+                <label><input type="radio" name="q21" value="w"> yu</label>
+                <label><input type="radio" name="q21" value="c"> ui</label>
+            </div>
+        </div>
+
+        <button type="button" id="submitBtn" onclick="endQuiz()">Submit My Answers!</button>
+    </form>
+
+    <div id="result-screen">
+        <h3 id="result-name"></h3>
+        <div id="remarks-box" class="remarks"></div>
+        <div class="score-text" id="final-score">0 / 21</div>
+        <button onclick="restartQuiz()">Next Student</button>
+    </div>
+</div>
+
+<div class="leaderboard">
+    <h3>🏆 Top Vowel Masters</h3>
+    <table class="leaderboard-table">
+        <thead>
+            <tr><th>Rank</th><th>Name</th><th>Score</th></tr>
+        </thead>
+        <tbody id="leaderboard-body">
+            <tr><td colspan="3" style="text-align:center;">No records yet</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let timeLeft = 999999999;
+    let timerInterval;
+    let scores = JSON.parse(localStorage.getItem('koreanQuizScores')) || [];
+    let currentStudent = "";
+
+    function startQuiz() {
+        const nameInput = document.getElementById('studentName');
+        currentStudent = nameInput.value.trim();
+        if (!currentStudent) { alert("Please enter your name first!"); return; }
+        document.getElementById('start-screen').style.display = "none";
+        document.getElementById('info-bar').style.display = "flex";
+        document.getElementById('quizForm').style.display = "block";
+        document.getElementById('display-current-name').innerText = "Student: " + currentStudent;
+        startTimer();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerHTML = timeLeft + "s";
+            if (timeLeft <= 0) { endQuiz(); }
+        }, 1000);
+    }
+
+    function updateLeaderboard() {
+        const tbody = document.getElementById('leaderboard-body');
+        scores.sort((a, b) => b.score - a.score);
+        const topFive = scores.slice(0, 5);
+        if (topFive.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No records yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = topFive.map((s, index) => `
+            <tr class="${index === 0 ? 'top-rank' : ''}">
+                <td>${index + 1}</td>
+                <td>${s.name}</td>
+                <td>${s.score} / 21</td>
+            </tr>
+        `).join('');
+    }
+
+    function endQuiz() {
+        clearInterval(timerInterval);
+        const form = document.getElementById('quizForm');
+        const results = new FormData(form);
+        let score = 0;
+        for (let value of results.values()) { if (value === "c") score++; }
+
+        scores.push({ name: currentStudent, score: score });
+        localStorage.setItem('koreanQuizScores', JSON.stringify(scores));
+        updateLeaderboard();
+
+        document.getElementById('quizForm').style.display = "none";
+        document.getElementById('info-bar').style.display = "none";
+        const resultScreen = document.getElementById('result-screen');
+        const remarksBox = document.getElementById('remarks-box');
+        resultScreen.style.display = "block";
+        
+        document.getElementById('result-name').innerText = "Results for: " + currentStudent;
+        document.getElementById('final-score').innerText = score + " / 21";
+
+        if (score >= 15) {
+            remarksBox.innerText = "🎉 PASS! You are a Vowel Master!";
+            remarksBox.className = "remarks pass";
+            spawnCelebration();
+        } else {
+            remarksBox.innerText = "📖 Practice more! You can do it!";
+            remarksBox.className = "remarks fail";
+        }
+    }
+
+    function spawnCelebration() {
+        const emojis = ['🎉', '✨', '🎈', '⭐', '🇰🇷', '🔥'];
+        for (let i = 0; i < 50; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            piece.style.left = Math.random() * 100 + 'vw';
+            piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            piece.style.opacity = Math.random();
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 4000);
+        }
+    }
+
+    function restartQuiz() { location.reload(); }
+    window.onload = () => { updateLeaderboard(); };
+</script>
+
+</body>
+</html>
